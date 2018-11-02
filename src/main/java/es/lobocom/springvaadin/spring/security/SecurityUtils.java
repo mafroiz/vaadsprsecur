@@ -1,12 +1,20 @@
 package es.lobocom.springvaadin.spring.security;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.vaadin.flow.server.ServletHelper.RequestType;
 import com.vaadin.flow.shared.ApplicationConstants;
@@ -26,7 +34,53 @@ public class SecurityUtils {
         return authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority(role));
     }
     
+	/**
+	 * Gets the user name of the currently signed in user.
+	 *
+	 * @return the user name of the current user or <code>null</code> if the user
+	 *         has not signed in
+	 */
+	public static String getUsername() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		UserDetails userDetails = (UserDetails) context.getAuthentication().getPrincipal();
+		return userDetails.getUsername();
+	}
     
+    
+	/**
+	 * Checks if access is granted for the current user for the given secured view,
+	 * defined by the view class.
+	 *
+	 * @param securedClass
+	 * @return true if access is granted, false otherwise.
+	 */
+	public static boolean isAccessGranted(Class<?> securedClass) {
+		Secured secured = AnnotationUtils.findAnnotation(securedClass, Secured.class);
+		if (secured == null) {
+			return true;
+		}
+
+		Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		if (userAuthentication == null) {
+			return false;
+		}
+		List<String> allowedRoles = Arrays.asList(secured.value());
+		return userAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+				.anyMatch(allowedRoles::contains);
+	}
+	
+	
+	/**
+	 * Checks if the user is logged in.
+	 *
+	 * @return true if the user is logged in. False otherwise.
+	 */
+	public static boolean isUserLoggedIn() {
+		SecurityContext context = SecurityContextHolder.getContext();
+		return context.getAuthentication() != null
+				&& !(context.getAuthentication() instanceof AnonymousAuthenticationToken);
+	}
+	
     
 	/**
 	 * Tests if the request is an internal framework request. The test consists of

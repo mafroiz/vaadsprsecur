@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import es.lobocom.fullstack.backend.data.entity.User;
-import es.lobocom.fullstack.backend.repositories.UserRepository;
+import es.lobocom.springvaadin.spring.user.User;
+import es.lobocom.springvaadin.spring.user.UserRepository;
 
 /**
  * Implements the {@link UserDetailsService}.

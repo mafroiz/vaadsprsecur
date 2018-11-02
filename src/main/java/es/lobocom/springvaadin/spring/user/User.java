@@ -10,6 +10,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import es.lobocom.springvaadin.spring.AbstractEntity;
+
 @Entity(name="UserInfo")
 public class User extends AbstractEntity {
 
